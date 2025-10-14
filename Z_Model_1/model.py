@@ -88,10 +88,39 @@ class MyModel(nn.Module):
         # Transformer编码器
         x = self.transformer_encoder(x)  # [batch_size, 3, d_model] -> [batch_size, target_seq_len, d_model]
         
-        # 取序列的平均值作为特征表示
+        # 取序列的平均值作为输出
         x = x.mean(dim=1)  # [batch_size,target_seq_len, d_model] -> [batch_size, d_model]
         
         # 输出
         output = self.output_projection(x)  # [batch_size, d_model] -> [batch_size, output_dim]
         
         return output
+
+class MLPModel(nn.Module):
+    def __init__(self, input_dim=INPUT_DIM, output_dim=OUTPUT_DIM,
+                 d_model=D_MODEL, d_ff=D_FF, dropout=DROPOUT, activation=ACTIVATION):
+        super(MLPModel, self).__init__()
+        act = nn.GELU() if activation.lower() == "gelu" else nn.ReLU()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, d_model * 2),
+            nn.LayerNorm(d_model * 2),
+            act,
+            nn.Dropout(dropout),
+            nn.Linear(d_model * 2, d_ff),
+            nn.LayerNorm(d_ff),
+            act,
+            nn.Dropout(dropout),
+            nn.Linear(d_ff, output_dim)
+        )
+        self._init_parameters()
+
+    def _init_parameters(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+
+    def forward(self, x):
+        # x: [batch_size, INPUT_DIM]
+        return self.net(x)

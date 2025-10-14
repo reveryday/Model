@@ -1,7 +1,7 @@
 import torch
 import logging
 import numpy as np
-from utils import inverse_transform_predictions
+from utils import inverse_y
 import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 
@@ -15,8 +15,8 @@ def evaluate(model, test_loader, criterion, device, y_scaler):
     
     with torch.no_grad():
         for inputs, targets in test_loader:
-            inputs = inputs.to(device) #[batch_size, 21] 
-            targets = targets.to(device)
+            inputs = inputs.to(device) #[batch_size, 8] 
+            targets = targets.to(device) # [batch_size, 6]
             outputs = model(inputs)
             loss = criterion(outputs, targets)
             test_loss += loss.item()
@@ -28,39 +28,12 @@ def evaluate(model, test_loader, criterion, device, y_scaler):
     all_outputs = torch.cat(all_outputs, dim=0) # [batch_size, data_length×test_size]
     all_targets = torch.cat(all_targets, dim=0)
 
-    print(f"Log Targets max: {all_targets.max().item()} min: {all_targets.min().item()} mean: {all_targets.mean().item()}")
-    print(f"Log Outputs max: {all_outputs.max().item()} min: {all_outputs.min().item()} mean: {all_outputs.mean().item()}")
-#    print(f"Targets max: {all_targets.max().item()}")
-#    print(f"Targets min: {all_targets.min().item()}")
-#    print(f"Targets mean: {all_targets.mean().item()}")
-#
-#    print(f"outputs max: {all_outputs.max().item()}")
-#    print(f"outputs min: {all_outputs.min().item()}")
-#    print(f"outputs mean: {all_outputs.mean().item()}")
-
-
+    logging.info(f"Normalized Targets max: {all_targets.max().item()} min: {all_targets.min().item()} mean: {all_targets.mean().item()}")
+    logging.info(f"Normalized Outputs max: {all_outputs.max().item()} min: {all_outputs.min().item()} mean: {all_outputs.mean().item()}")
     
-#    # 将预测结果和目标转换回原始尺度
-#    if y_scaler is not None:
-#        all_outputs_original = inverse_transform_predictions(all_outputs, y_scaler)  #[3600,3]
-#        all_targets_original = inverse_transform_predictions(all_targets, y_scaler)  #[3600,3]
-#
-#        print(f"original Targets max: {all_targets_original.max().item()}")
-#        print(f"original Targets min: {all_targets_original.min().item()}")
-#        print(f"original Targets mean: {all_targets_original.mean().item()}")
-#
-#        print(f"original outputs max: {all_outputs_original.max().item()}")
-#        print(f"original outputs min: {all_outputs_original.min().item()}")
-#        print(f"original outputs mean: {all_outputs_original.mean().item()}")
-#
-#        
-#        # 计算原始尺度下的MSE、MAE、MAPE
-#        mse_original = np.mean((all_outputs_original - all_targets_original) ** 2)
-#        mae_original = np.mean(np.abs(all_outputs_original - all_targets_original))
-#        mape_original = np.mean(np.abs((all_targets_original - all_outputs_original) / all_targets_original)) * 100
 
-    all_targets_original = np.expm1(all_targets.numpy()) 
-    all_outputs_original = np.expm1(all_outputs.numpy())
+    all_targets_original = inverse_y(all_targets, y_scaler)
+    all_outputs_original = inverse_y(all_outputs, y_scaler)
     
     logging.info(f"original targets shape: {all_targets_original.shape}")
     logging.info(f"original Targets max: {all_targets_original.max().item()} min: {all_targets_original.min().item()} mean: {all_targets_original.mean().item()}")

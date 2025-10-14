@@ -1,14 +1,18 @@
 import torch
-import torch.nn as nn
 import torch.optim as optim
 import logging
 import time
+import os
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts, ReduceLROnPlateau
 
 from model import MyModel
-from utils import load_data, AddNoise
+from utils import load_data, AddNoise, HuberLoss
 from evaluate import evaluate, draw_result
 from conf import *
+import warnings
+
+warnings.filterwarnings("ignore", message="Flash attention was not supported")
+warnings.filterwarnings("ignore", message="memory efficient attention")
 
 logging.basicConfig(level=logging.INFO, format='%(message)s', handlers=[logging.StreamHandler()])
 
@@ -34,7 +38,7 @@ def train(model, train_loader, val_loader, criterion, optimizer, scheduler, devi
             inputs = AddNoise(inputs, noise_level=0.01)  # 增加噪声水平以提高鲁棒性            
             optimizer.zero_grad()            
             outputs = model(inputs)
-            loss = criterion(outputs, targets)            
+            loss = criterion(outputs, targets)  # L1Loss默认把损失计算为“所有元素差的绝对值取平均          
             loss.backward()
             # 梯度裁剪
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=MAX_NORM)
@@ -101,11 +105,25 @@ def main():
     train_loader = data_dict['train_loader']
     val_loader = data_dict['val_loader']
     test_loader = data_dict['test_loader']
-    #y_scaler = data_dict['y_scaler']
+    y_scaler = data_dict['y_scaler']
     
     model = MyModel().to(device)
 
-    criterion = nn.L1Loss()
+    # 加载已保存的模型权重（如果存在best model.pth文件）
+    model_path = 'best_model.pth'
+    if os.path.exists(model_path):
+        try:
+            checkpoint = torch.load(model_path, map_location=device)
+            model.load_state_dict(checkpoint)
+            logging.info(f'Successfully loaded pretrained model from: {model_path}')
+        except Exception as e:
+            logging.error(f'Error loading pretrained model: {e}')
+            logging.info('Starting training from scratch...')
+    else:
+        logging.info('No pretrained model found, starting training from scratch...')
+
+    criterion = HuberLoss(delta=0.5) # 使用Huber Loss替代L1 Loss
+    #criterion = nn.L1Loss()
     
     optimizer = optim.AdamW(
         model.parameters(),
@@ -136,7 +154,7 @@ def main():
         test_loader=test_loader, 
         criterion=criterion, 
         device=device, 
-        y_scaler=Y_SCALER)
+        y_scaler=y_scaler)
     
     # 保存模型
     torch.save(model.state_dict(), 'best_model.pth')
