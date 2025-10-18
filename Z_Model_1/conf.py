@@ -5,7 +5,7 @@ import torch
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 # load data
-DATA_PATH = "./BUF_DATA_with_MAC_no_material.csv"
+DATA_PATH = "./data.csv"
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 Y_SCALER = StandardScaler()
 VAL_SIZE = 0.15 

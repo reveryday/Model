@@ -1,0 +1,66 @@
+Source: d:\DL_单层BUF\Model\Data Analysis\BUF_DATA_with_MAC_no_material.csv
+Rows: 90168, Columns: 14
+BUF columns: Inf_Flu_BUF, Fin_Flu_BUF, Inf_Exp_BUF, Fin_Exp_BUF, Inf_Eff_BUF, Fin_Eff_BUF
+Definitions of 'extreme' used:
+ - Tukey upper fence: Q3 + 1.5*IQR
+ - Percentile-based: >= 99th and >= 99.9th percentile
+
+=== Inf_Flu_BUF ===
+count=90168
+min=1 max=2.6338e+35 mean=1.33204e+31 std=1.38899e+33
+Q1=22.6122 Q3=2615.6 IQR=2592.99 TukeyHigh=6505.08
+p99=2.16922e+20 p99.9=2.50501e+31
+Tukey extremes: 17776 (19.71%), range=(6507.3, 2.6338e+35)
+>=99th percentile: 902 (1.00%), range=(2.1721e+20, 2.6338e+35)
+>=99.9th percentile: 91 (0.10%), range=(2.5485e+31, 2.6338e+35)
+Top5 largest: 2.6338e+35, 2.5479e+35, 1.141e+35, 1.1028e+35, 7.1891e+34
+
+=== Fin_Flu_BUF ===
+count=90168
+min=1 max=2.624e+35 mean=1.32377e+31 std=1.38199e+33
+Q1=18.0828 Q3=1800.43 IQR=1782.34 TukeyHigh=4473.94
+p99=2.15329e+20 p99.9=2.47604e+31
+Tukey extremes: 17676 (19.60%), range=(4475, 2.624e+35)
+>=99th percentile: 902 (1.00%), range=(2.1547e+20, 2.624e+35)
+>=99.9th percentile: 91 (0.10%), range=(2.525e+31, 2.624e+35)
+Top5 largest: 2.624e+35, 2.5341e+35, 1.1361e+35, 1.0961e+35, 7.0909e+34
+
+=== Inf_Exp_BUF ===
+count=90168
+min=1 max=2.982e+35 mean=1.50162e+31 std=1.53904e+33
+Q1=12.978 Q3=1063.65 IQR=1050.67 TukeyHigh=2639.66
+p99=2.66319e+20 p99.9=2.87226e+31
+Tukey extremes: 18023 (19.99%), range=(2642.1, 2.982e+35)
+>=99th percentile: 902 (1.00%), range=(2.6847e+20, 2.982e+35)
+>=99.9th percentile: 91 (0.10%), range=(2.8763e+31, 2.982e+35)
+Top5 largest: 2.982e+35, 2.7395e+35, 1.2888e+35, 1.1959e+35, 8.0682e+34
+
+=== Fin_Exp_BUF ===
+count=90168
+min=1 max=2.918e+35 mean=1.4587e+31 std=1.51377e+33
+Q1=11.526 Q3=836.163 IQR=824.637 TukeyHigh=2073.12
+p99=2.57701e+20 p99.9=2.72391e+31
+Tukey extremes: 17819 (19.76%), range=(2073.2, 2.918e+35)
+>=99th percentile: 902 (1.00%), range=(2.5817e+20, 2.918e+35)
+>=99.9th percentile: 91 (0.10%), range=(2.7947e+31, 2.918e+35)
+Top5 largest: 2.918e+35, 2.7286e+35, 1.257e+35, 1.1842e+35, 7.6763e+34
+
+=== Inf_Eff_BUF ===
+count=90168
+min=1 max=2.5802e+35 mean=1.28217e+31 std=1.33225e+33
+Q1=11.0147 Q3=923.562 IQR=912.548 TukeyHigh=2292.38
+p99=1.80806e+20 p99.9=2.35328e+31
+Tukey extremes: 17819 (19.76%), range=(2292.6, 2.5802e+35)
+>=99th percentile: 902 (1.00%), range=(1.89e+20, 2.5802e+35)
+>=99.9th percentile: 91 (0.10%), range=(2.3802e+31, 2.5802e+35)
+Top5 largest: 2.5802e+35, 2.3811e+35, 1.1176e+35, 1.0306e+35, 7.0434e+34
+
+=== Fin_Eff_BUF ===
+count=90168
+min=1 max=2.5712e+35 mean=1.27468e+31 std=1.32589e+33
+Q1=10.2665 Q3=746.85 IQR=736.584 TukeyHigh=1851.73
+p99=1.78539e+20 p99.9=2.32869e+31
+Tukey extremes: 17665 (19.59%), range=(1852.2, 2.5712e+35)
+>=99th percentile: 902 (1.00%), range=(1.8536e+20, 2.5712e+35)
+>=99.9th percentile: 91 (0.10%), range=(2.3584e+31, 2.5712e+35)
+Top5 largest: 2.5712e+35, 2.3686e+35, 1.1131e+35, 1.0245e+35, 6.953e+34

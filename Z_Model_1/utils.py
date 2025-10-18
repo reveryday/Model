@@ -27,7 +27,7 @@ def load_data(file_path=DATA_PATH, val_size=VAL_SIZE, test_size=TEST_SIZE,
     "MAC_Total","MAC_Incoherent","MAC_Coherent","MAC_Photoelectric","MAC_Pair_production",
     "Inf_Flu_BUF","Fin_Flu_BUF","Inf_Exp_BUF","Fin_Exp_BUF","Inf_Eff_BUF","Fin_Eff_BUF"]
         
-    X = data.iloc[:, :8]
+    X = data.drop(columns=["MAC_Coherent"]).iloc[:, :7]   # 去掉 MAC_Coherent 后取前 7 列做特征
     y = data.iloc[:, 8:14].values
 
     # (1) 对数变换能量
@@ -46,7 +46,7 @@ def load_data(file_path=DATA_PATH, val_size=VAL_SIZE, test_size=TEST_SIZE,
     X = X.values
 
     # y_log = np.log(y)  # 直接取 log(y)   
-    # y_scaled = y_scaler.fit_transform(y_log)  # # 对对数变换后的数据进行标准化，提高数值稳定性
+    # y_scaled = y_scaler.fit_transform(y_log)  #对对数变换后的数据进行标准化，提高数值稳定性
     y_scaled = np.log(y)
   
     # 划分数据集
@@ -84,7 +84,7 @@ def inverse_y(predictions, y_scaler):
     # y_log_restored = y_scaler.inverse_transform(predictions)    
     # # 逆对数变换：exp(log(y)) = y
     # y_original = np.exp(y_log_restored)
-    y_original = predictions
+    y_original = np.exp(predictions)
     
     return y_original
 

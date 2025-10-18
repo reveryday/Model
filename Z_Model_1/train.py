@@ -5,7 +5,7 @@ import time
 import os
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts, ReduceLROnPlateau
 
-from model import MyModel
+from model import MyModel, MLPModel
 from utils import load_data, AddNoise, HuberLoss
 from evaluate import evaluate, draw_result
 from conf import *
@@ -107,7 +107,8 @@ def main():
     test_loader = data_dict['test_loader']
     y_scaler = data_dict['y_scaler']
     
-    model = MyModel().to(device)
+    #model = MyModel().to(device)
+    model = MLPModel().to(device)
 
     # 加载已保存的模型权重（如果存在best model.pth文件）
     model_path = 'best_model.pth'

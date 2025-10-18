@@ -98,19 +98,31 @@ class MyModel(nn.Module):
 
 class MLPModel(nn.Module):
     def __init__(self, input_dim=INPUT_DIM, output_dim=OUTPUT_DIM,
-                 d_model=D_MODEL, d_ff=D_FF, dropout=DROPOUT, activation=ACTIVATION):
+                 dropout=DROPOUT, activation=ACTIVATION):
+        
         super(MLPModel, self).__init__()
         act = nn.GELU() if activation.lower() == "gelu" else nn.ReLU()
         self.net = nn.Sequential(
-            nn.Linear(input_dim, d_model * 2),
-            nn.LayerNorm(d_model * 2),
+            nn.Linear(input_dim, 32),
+            nn.LayerNorm(32),
+            act,
+
+            nn.Linear(32, 128),
+            nn.LayerNorm(128),
             act,
             nn.Dropout(dropout),
-            nn.Linear(d_model * 2, d_ff),
-            nn.LayerNorm(d_ff),
+
+            nn.Linear(128, 256),
+            nn.LayerNorm(256),
             act,
             nn.Dropout(dropout),
-            nn.Linear(d_ff, output_dim)
+
+            nn.Linear(256, 64),
+            nn.LayerNorm(64),
+            act,
+            nn.Dropout(dropout),
+
+            nn.Linear(64, output_dim)
         )
         self._init_parameters()
 
@@ -122,5 +134,5 @@ class MLPModel(nn.Module):
                     nn.init.zeros_(m.bias)
 
     def forward(self, x):
-        # x: [batch_size, INPUT_DIM]
+        # [batch_size, INPUT_DIM] -> [batch_size, OUTPUT_DIM]
         return self.net(x)
