@@ -27,20 +27,19 @@ def load_data(file_path=DATA_PATH, val_size=VAL_SIZE, test_size=TEST_SIZE,
     "MAC_Total","MAC_Incoherent","MAC_Coherent","MAC_Photoelectric","MAC_Pair_production",
     "Inf_Flu_BUF","Fin_Flu_BUF","Inf_Exp_BUF","Fin_Exp_BUF","Inf_Eff_BUF","Fin_Eff_BUF"]
         
-    X = data.drop(columns=["MAC_Coherent"]).iloc[:, :7]   # 去掉 MAC_Coherent 后取前 7 列做特征
+    X = data.drop(columns=["MAC_Coherent","Shell"]).iloc[:, :6]   # 去掉 MAC_Coherent 后取前 7 列做特征
     y = data.iloc[:, 8:14].values
 
-    # (1) 对数变换能量
-    X["Energy"] = np.log10(X["Energy"]) #范围大约是 [-2, 1]
-    E_min, E_max = -2, 1
+    # (1) 能量归一化
+    E_min, E_max = 0.01, 10
     X["Energy"] = (X["Energy"] - E_min) / (E_max - E_min)
     
     # (2) 线性归一化厚度 MFP
     X["MFP"] = X["MFP"] / 100.0  # 缩放到 [0,1]
     
     # (3) 对 MAC 类标准化
-    scaler_MAC = StandardScaler()
-    mac_cols = ["MAC_Total","MAC_Incoherent","MAC_Coherent","MAC_Photoelectric","MAC_Pair_production"]
+    scaler_MAC = MinMaxScaler(feature_range=(0, 100))
+    mac_cols = ["MAC_Total","MAC_Incoherent","MAC_Photoelectric","MAC_Pair_production"]
     X[mac_cols] = scaler_MAC.fit_transform(X[mac_cols])
 
     X = X.values

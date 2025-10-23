@@ -2,12 +2,10 @@ import os
 import csv
 import re
 
-def parse_buf_data(file_path):
-    """
-    解析BUF_DATA文件并转换为CSV格式
-    """
-    data_rows = []
-    
+FILE_PATH = "./BUF_DATA"
+def parse_buf_data(file_path=FILE_PATH):
+
+    data_rows = []    
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.read()
     

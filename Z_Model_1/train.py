@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import torch.optim as optim
 import logging
 import time
@@ -24,7 +25,7 @@ def train(model, train_loader, val_loader, criterion, optimizer, scheduler, devi
     
     best_val_loss = float('inf')
     best_model_state = None
-    patience = 200
+    patience = 500
     patience_counter = 0
     
     for epoch in range(num_epochs):
@@ -53,6 +54,9 @@ def train(model, train_loader, val_loader, criterion, optimizer, scheduler, devi
         val_loss = 0.0
         # 计算验证损失：评估模型在未见过的数据上的泛化能力、监控训练过程
         with torch.no_grad():
+            if torch.isnan(outputs).any():
+                print("NaN in model output!")
+                break
             for inputs, targets in val_loader:
                 inputs = inputs.to(device)
                 targets = targets.to(device)
@@ -107,11 +111,11 @@ def main():
     test_loader = data_dict['test_loader']
     y_scaler = data_dict['y_scaler']
     
-    #model = MyModel().to(device)
-    model = MLPModel().to(device)
+    model = MyModel().to(device)
+    #model = MLPModel().to(device)
 
     # 加载已保存的模型权重（如果存在best model.pth文件）
-    model_path = 'best_model.pth'
+    model_path = './outputs/checkpoints/best_model.pth'
     if os.path.exists(model_path):
         try:
             checkpoint = torch.load(model_path, map_location=device)
@@ -123,8 +127,8 @@ def main():
     else:
         logging.info('No pretrained model found, starting training from scratch...')
 
-    criterion = HuberLoss(delta=0.5) # 使用Huber Loss替代L1 Loss
-    #criterion = nn.L1Loss()
+    #criterion = HuberLoss(delta=0.5) # 使用Huber Loss替代L1 Loss
+    criterion = nn.L1Loss()
     
     optimizer = optim.AdamW(
         model.parameters(),
@@ -158,8 +162,10 @@ def main():
         y_scaler=y_scaler)
     
     # 保存模型
-    torch.save(model.state_dict(), 'best_model.pth')
-    logging.info("Model saved to best_model.pth")
+    os.makedirs('./outputs', exist_ok=True)
+    os.makedirs('./outputs/checkpoints', exist_ok=True)
+    torch.save(model.state_dict(), './outputs/checkpoints/best_model.pth')
+    logging.info("Model saved to outputs/checkpoints/best_model.pth")
     
     # 计算程序总运行时间
     total_end_time = time.time()
