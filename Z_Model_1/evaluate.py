@@ -5,6 +5,7 @@ from utils import inverse_y
 import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
 import os
+import pandas as pd
 
 logging.basicConfig(level=logging.INFO, format='%(message)s', handlers=[logging.StreamHandler()])
 
@@ -13,6 +14,7 @@ def evaluate(model, test_loader, criterion, device, y_scaler):
     test_loss = 0.0
     all_outputs = []
     all_targets = []
+    all_inputs = []
     
     with torch.no_grad():
         for inputs, targets in test_loader:
@@ -22,10 +24,12 @@ def evaluate(model, test_loader, criterion, device, y_scaler):
             loss = criterion(outputs, targets)
             test_loss += loss.item()
             
+            all_inputs.append(inputs.cpu())
             all_outputs.append(outputs.cpu())
             all_targets.append(targets.cpu())
     
     test_loss /= len(test_loader)
+    all_inputs = torch.cat(all_inputs, dim=0)
     all_outputs = torch.cat(all_outputs, dim=0) # [batch_size, data_length×test_size]
     all_targets = torch.cat(all_targets, dim=0)
 
@@ -43,7 +47,7 @@ def evaluate(model, test_loader, criterion, device, y_scaler):
     logging.info(f"original outputs max: {all_outputs_original.max().item()} min: {all_outputs_original.min().item()} mean: {all_outputs_original.mean().item()}")
     logging.info("")
     
-    mse = np.mean((all_outputs_original - all_targets_original) ** 2)
+    #mse = np.mean((all_outputs_original - all_targets_original) ** 2)
     mae = np.mean(np.abs(all_outputs_original - all_targets_original))
     mape = np.mean(np.abs((all_targets_original - all_outputs_original) / all_targets_original)) * 100
     r2 = r2_score(all_targets_original, all_outputs_original)
@@ -52,10 +56,11 @@ def evaluate(model, test_loader, criterion, device, y_scaler):
     logging.info(f'Test Loss: {test_loss:.6f}')
     logging.info(f'Test MAPE: {mape:.2f}%')
     logging.info(f'Test R2: {r2:.6f}')
-    logging.info(f'Test MSE: {mse:.6f}')
+    #logging.info(f'Test MSE: {mse:.6f}')
     logging.info(f'Test MAE: {mae:.6f}')
     
-    return test_loss, mse, mae, mape, r2
+    #return test_loss, mse, mae, mape, r2
+    return test_loss, mae, mape, r2
 
 def draw_result(train_losses, val_losses, lr_history):
 

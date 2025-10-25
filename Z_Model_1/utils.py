@@ -27,7 +27,8 @@ def load_data(file_path=DATA_PATH, val_size=VAL_SIZE, test_size=TEST_SIZE,
     "MAC_Total","MAC_Incoherent","MAC_Coherent","MAC_Photoelectric","MAC_Pair_production",
     "Inf_Flu_BUF","Fin_Flu_BUF","Inf_Exp_BUF","Fin_Exp_BUF","Inf_Eff_BUF","Fin_Eff_BUF"]
         
-    X = data.drop(columns=["MAC_Coherent","Shell"]).iloc[:, :6]   # 去掉两列后取前 6 列做特征
+    #X = data.drop(columns=["MAC_Coherent","Shell"]).iloc[:, :6]   # 去掉两列后取前 6 列做特征
+    X = data.drop(columns=["MAC_Coherent"]).iloc[:, :7]   # 去掉两列后取前 7 列做特征
     #y = data.iloc[:, 8:14].values
     y = data.iloc[:, 13:14].values # 只预测 Fin_Eff_BUF 列
 
@@ -95,23 +96,3 @@ def AddNoise(batch, noise_level):
     noisy_batch = batch + noise  
     noisy_batch = torch.nan_to_num(noisy_batch, nan=0.0, posinf=1e5, neginf=-1e5)
     return noisy_batch
-
-
-def inverse_transform_predictions(predictions, scaler):
-    if isinstance(predictions, torch.Tensor):
-        predictions = predictions.detach().cpu().numpy()
-    return scaler.inverse_transform(predictions)
-
-
-# 定义Huber Loss类
-class HuberLoss(nn.Module):
-    def __init__(self, delta=1.0):
-        super(HuberLoss, self).__init__()
-        self.delta = delta
-    
-    def forward(self, input, target):
-        abs_error = torch.abs(input - target)
-        quadratic = torch.clamp(abs_error, max=self.delta)
-        linear = abs_error - quadratic
-        loss = 0.5 * quadratic**2 + self.delta * linear
-        return torch.mean(loss)

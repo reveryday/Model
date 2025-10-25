@@ -10,8 +10,10 @@ from model import MyModel, MLPModel
 from utils import load_data, AddNoise, HuberLoss
 from evaluate import evaluate, draw_result
 from conf import *
+from analysis import analysis
 import warnings
 
+warnings.filterwarnings("ignore", message=".*weights_only=False.*")
 warnings.filterwarnings("ignore", message="Flash attention was not supported")
 warnings.filterwarnings("ignore", message="memory efficient attention")
 
@@ -154,7 +156,7 @@ def main():
         device=device
     )
     
-    test_loss, MSE, MAE, MAPE, R2 = evaluate(
+    test_loss, MAE, MAPE, R2 = evaluate(
         model=model, 
         test_loader=test_loader, 
         criterion=criterion, 
@@ -166,6 +168,8 @@ def main():
     os.makedirs('./outputs/checkpoints', exist_ok=True)
     torch.save(model.state_dict(), './outputs/checkpoints/best_model.pth')
     logging.info("Model saved to outputs/checkpoints/best_model.pth")
+
+    analysis()
     
     # 计算程序总运行时间
     total_end_time = time.time()
