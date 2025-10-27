@@ -29,6 +29,19 @@ def train(model, train_loader, val_loader, criterion, optimizer, scheduler, devi
     best_model_state = None
     patience = 500
     patience_counter = 0
+
+    val_loss = 0.0
+    with torch.no_grad():
+        for inputs, targets in val_loader:
+                inputs = inputs.to(device)
+                targets = targets.to(device)
+                outputs = model(inputs)
+                loss = criterion(outputs, targets)
+                val_loss += loss.item()
+        
+    val_loss_ini = val_loss/len(val_loader)
+    logging.info(f'Initial validation loss: {val_loss_ini:.6f}')
+    best_val_loss = val_loss_ini  # 保存初始验证损失
     
     for epoch in range(num_epochs):
         model.train()
@@ -94,7 +107,7 @@ def train(model, train_loader, val_loader, criterion, optimizer, scheduler, devi
         
         logging.info(f'Epoch {epoch+1}/{num_epochs} - Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}, LR: {current_lr:.6f}')
     
-    # 加载最佳模型参数
+    # 保存最佳模型参数
     if best_model_state is not None:
         model.load_state_dict(best_model_state)
         logging.info(f'Loaded best model with validation loss: {best_val_loss:.6f}')
@@ -121,13 +134,13 @@ def main():
     if os.path.exists(model_path):
         try:
             checkpoint = torch.load(model_path, map_location=device)
-            model.load_state_dict(checkpoint)
+            model.load_state_dict(checkpoint)  #加载best model参数
             logging.info(f'Successfully loaded pretrained model from: {model_path}')
         except Exception as e:
             logging.error(f'Error loading pretrained model: {e}')
             logging.info('Starting training from scratch...')
     else:
-        logging.info('No pretrained model found, starting training from scratch...')
+        logging.info('No pretrained model found, starting training from scratch...')   
 
     #criterion = HuberLoss(delta=0.5) # 使用Huber Loss替代L1 Loss
     criterion = nn.L1Loss()
